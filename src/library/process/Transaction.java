@@ -1,10 +1,11 @@
 package library.process;
 
+import library.entity.Book;
+import library.entity.User;
+
 import java.util.HashMap;
 import java.util.Random;
 import java.util.ArrayList;
-import library.entity.Book;
-import library.entity.User;
 
 public class Transaction {
 

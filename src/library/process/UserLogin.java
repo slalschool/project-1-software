@@ -1,6 +1,8 @@
 package library.process;
 
 import library.entity.*;
+import library.process.LibraryData;
+
 import java.util.HashMap;
 
 public class UserLogin {
@@ -10,7 +12,7 @@ public class UserLogin {
 	 */
 	public UserLogin() {
 		
-		LibraryData.initiatlizeData(); 
+		LibraryData.initiatlizeData();
 	}
 	
 	/**

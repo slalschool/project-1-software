@@ -1,7 +1,6 @@
 package library;
 import library.process.*;
 import library.view.*;
-import library.entity.*;
 
 public class Starter {
 
