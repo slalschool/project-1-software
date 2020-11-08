@@ -13,7 +13,7 @@ public class LibraryData {
 	}
 	
 	public static void initiatlizeData() {
-		users.put("sidlal", new User("sidlal", "Siddharth", "Lal", "password", "CRD01", false));
+		users.put("sidlal", new User("slal", "Siddharth", "Lal", "password", "CRD01", false));
 		users.put("jsnli", new User("jli", "Jason", "Li", "password", "CRD02", false));
 		users.put("admin", new User("admin", "sys", "Administrator", "welcome234", "ADMCARD", true));
 

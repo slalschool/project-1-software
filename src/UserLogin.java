@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class UserLogin {
 
 	/**
-	 * Upon initiation of Login process, initialize the LibraryData 
+	 * initialize data when logging in
 	 */
 	public UserLogin() {
 		
@@ -14,7 +14,7 @@ public class UserLogin {
 	}
 	
 	/**
-	 * Verify user credentials and return boolean variable based on whether credentials match
+	 * verify user credentials and return boolean variable based on whether credentials match
 	 */
 	public static boolean verifyUser(String userNameParam, String passwordParam) {
 		boolean result = false;

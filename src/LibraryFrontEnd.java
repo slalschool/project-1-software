@@ -73,33 +73,26 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	}
 	
 	private void buildWindow() {
-		
-		try {
-			jf = new JFrame("Library Application");
-            cp = jf.getContentPane();
-            cp.setLayout(new BorderLayout());
-            cl = new CardLayout();
-            mainPanel.setLayout(cl);
+		jf = new JFrame("Library Application");
+		cp = jf.getContentPane();
+		cp.setLayout(new BorderLayout());
+		cl = new CardLayout();
+		mainPanel.setLayout(cl);
 
-            buildLoginScreen();
-            mainPanel.add(loginPanel, this.LOGIN_PANEL);
-            buildAccountRegistrationScreen();
-            mainPanel.add(registerPanel, REGISTER_PANEL);
+		buildLoginScreen();
+		mainPanel.add(loginPanel, this.LOGIN_PANEL);
+		buildAccountRegistrationScreen();
+		mainPanel.add(registerPanel, REGISTER_PANEL);
 
-            WindowHandler wh0 = new WindowHandler();
+		WindowHandler wh0 = new WindowHandler();
 
-            jf.add(mainPanel);
-            cl.show(mainPanel, LOGIN_PANEL);
+		jf.add(mainPanel);
+		cl.show(mainPanel, LOGIN_PANEL);
 
-            jf.addWindowListener(wh0);            
-            jf.setBounds(50,50,1200,800);
-            jf.setResizable(false);
-            jf.setVisible(true);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
+		jf.addWindowListener(wh0);
+		jf.setBounds(50,50,1200,800);
+		jf.setResizable(false);
+		jf.setVisible(true);
 	}
 	
 	private void buildSearchBooksScreen() {
@@ -506,12 +499,10 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	}
 	
 	public void setFormFont(JComponent component, boolean heading) {
-		if(!heading)
-		{
+		if(!heading) {
 			component.setFont(new Font("Helvetica Neue", Font.PLAIN, 16));
 		}
-		else
-		{
+		else {
 			component.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
 		}
 	}
@@ -529,8 +520,7 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		JOptionPane.showMessageDialog(new JFrame(),"Username is required","Error",JOptionPane.ERROR_MESSAGE);
         	}
         	if(!error) {
-	        	if(inputPassword==null || inputPassword.trim().equals(""))
-	        	{
+	        	if(inputPassword==null || inputPassword.trim().equals("")) {
 	        		error = true;
 	        		JOptionPane.showMessageDialog(new JFrame(),"Password is required","Error",JOptionPane.ERROR_MESSAGE);
 	        	}
@@ -553,7 +543,8 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		}
         	}
         	
-        }	
+        }
+
         if(ae.getSource()==loginRegisterBtn) {
         	System.out.println("Opening Account Registration");
         	cl.show(mainPanel, REGISTER_PANEL);
@@ -571,36 +562,31 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		JOptionPane.showMessageDialog(new JFrame(),"Username is required","Error",JOptionPane.ERROR_MESSAGE);
         	}
         	if(!error) {
-            	if(inputFN==null || inputFN.trim().equals(""))
-            	{
+            	if(inputFN==null || inputFN.trim().equals("")) {
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"First name is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-            	if(inputLN==null || inputLN.trim().equals(""))
-            	{
+            	if(inputLN==null || inputLN.trim().equals("")) {
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"Last name is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-            	if(inputPassword==null || inputPassword.trim().equals(""))
-            	{
+            	if(inputPassword==null || inputPassword.trim().equals("")) {
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"Password is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-            	if(inputReenter==null || inputReenter.trim().equals(""))
-            	{
+            	if(inputReenter==null || inputReenter.trim().equals("")) {
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"Password re-entry is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-        		if(!inputPassword.equals(inputReenter))
-        		{
+        		if(!inputPassword.equals(inputReenter)) {
             		error = true;
         			JOptionPane.showMessageDialog(new JFrame(),"Passwords do not match","Error",JOptionPane.ERROR_MESSAGE);
         		}
@@ -613,24 +599,25 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		cl.show(mainPanel, LOGIN_PANEL);
         	}
         }
+
         if(ae.getSource()==logoutBtn) {
         	System.out.println("User "+loggedInUser.getFirstName()+" logged out.");
         	loggedInUser = null;
         	homePanel = null;
         	cl.show(mainPanel, LOGIN_PANEL);
         }
+
         if(ae.getSource()==searchBooksBtn) {
             buildSearchBooksScreen();
             mainPanel.add(searchBooksPanel, SEARCH_BOOKS_PANEL);
             cl.show(mainPanel, SEARCH_BOOKS_PANEL);
         }
+
         if(ae.getSource()==addToCartBtn) {
-        	if(chosenBookId==null || chosenBookId.equals(""))
-        	{
+        	if(chosenBookId==null || chosenBookId.equals("")) {
         		JOptionPane.showMessageDialog(new JFrame(),"No book selected","Error",JOptionPane.ERROR_MESSAGE);
         	}
-        	else
-        	{
+        	else {
         		Transaction.addBookToCart(chosenBookId);
         		numberOfBooksInCart = Transaction.cart.size(); 
         		System.out.println("Cart Size: "+numberOfBooksInCart);
@@ -643,13 +630,12 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		jf.setVisible(true);
         	}
         }
+
         if(ae.getSource()==checkoutBtn) {
-        	if(numberOfBooksInCart==0)
-        	{
+        	if(numberOfBooksInCart==0) {
         		JOptionPane.showMessageDialog(new JFrame(),"Cart is empty. Add at least 1 book to cart.","Error",JOptionPane.ERROR_MESSAGE);
         	}
-        	else
-        	{
+        	else {
         		Transaction.checkOut(loggedInUser.getUserName(), Transaction.cart);
         		JOptionPane.showMessageDialog(new JFrame(),numberOfBooksInCart + " books checked out by "+loggedInUser.getFirstName(),"Success",JOptionPane.INFORMATION_MESSAGE);
         		Transaction.cart.clear();
@@ -660,7 +646,6 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         
 	}
 
-	@Override
 	public void mouseClicked(MouseEvent evt) {
 		int row = allBooksList.rowAtPoint(evt.getPoint());
 		int col = 0;

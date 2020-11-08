@@ -13,7 +13,7 @@ public class Transaction {
 	public static ArrayList cart = new ArrayList();
 	
 	private Transaction() {
-		// No construtor calls
+
 	}
 	
 	public static HashMap<String, ArrayList> getCurrentBookings() {
@@ -40,7 +40,7 @@ public class Transaction {
 	}
 	
 	/**
-	 * Checkout books that were added to the cart
+	 * checkout books that were added to the cart
 	 */
 	public static void checkOut(String userNameParam, ArrayList cart) {
 		HashMap<String, Book> booksInventory = LibraryData.getBooks();
