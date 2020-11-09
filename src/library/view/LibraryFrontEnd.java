@@ -445,7 +445,7 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		addSpacerLabel(centerPanelNorth,6);
 		
 		//row 9
-		registerBtn = new JButton("SUBMIT REGISTRATIONT");
+		registerBtn = new JButton("SUBMIT REGISTRATION");
 		setFormFont(registerBtn,false);
 		registerBtn.setPreferredSize(new Dimension(100, 20));
 		registerBtn.addActionListener(this);
