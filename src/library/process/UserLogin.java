@@ -1,8 +1,6 @@
 package library.process;
 
 import library.entity.*;
-import library.process.LibraryData;
-
 import java.util.HashMap;
 
 public class UserLogin {
@@ -12,9 +10,9 @@ public class UserLogin {
 	 */
 	public UserLogin() {
 		
-		LibraryData.initiatlizeData();
+		LibraryData.initiatlizeData(); 
 	}
-	
+
 	/**
 	 * verify user credentials and return boolean variable based on whether credentials match
 	 */
@@ -28,11 +26,9 @@ public class UserLogin {
         	
         	user = users.get(userNameParam);
         }
-        if(user!=null)
-        {
+        if(user!=null) {
         	System.out.println("User exists");
-        	if(passwordParam.equals(user.getPassword()))
-        	{
+        	if(passwordParam.equals(user.getPassword())) {
         		System.out.println("Password valid");
         		result=true;
         	}

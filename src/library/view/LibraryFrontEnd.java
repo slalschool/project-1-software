@@ -1,13 +1,18 @@
 package library.view;
-import library.view.listener.MouseHandler;
-import library.view.listener.WindowHandler;
+import library.*;
+import library.view.listener.*;
 import library.process.*;
 import library.entity.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.tree.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	
@@ -19,12 +24,14 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	private static final String REGISTER_PANEL="REGISTER_PANEL";
 	private static final String HOME_PANEL = "HOME_PANEL";
 	private static final String SEARCH_BOOKS_PANEL = "SEARCH_BOOKS_PANEL";
+	private static final String ADMIN_PANEL = "ADMIN_PANEL";
 	
 	JPanel mainPanel = new JPanel();
 	JPanel loginPanel;
 	JPanel registerPanel;
 	JPanel homePanel;
 	JPanel searchBooksPanel;
+	JPanel adminPanel;
 	
     int v1 = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
     int h1 = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
@@ -52,15 +59,22 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	//Search Books page buttons
 	JButton addToCartBtn;
 	JButton checkoutBtn;
+	JButton homeBtn;
 	private JTable allBooksList;
 	String chosenBookId;
 	int numberOfBooksInCart=0;
 	JPanel cartBooksCountPanel = new JPanel();
 	
+	//Home page (Borrowed Books) buttons
+	JButton returnBookBtn;
+	
 	//User specific details
 	private User loggedInUser;
 	private HashMap<String, Book> borrowedBooks;
 	private JTable borrowedBooksList;
+	
+	//Admin page components
+	JTable allUsersList;
 	
 	public LibraryFrontEnd() {
 		
@@ -86,10 +100,83 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		cl.show(mainPanel, LOGIN_PANEL);
 
 		jf.addWindowListener(wh0);
-		jf.setBounds(50,50,1200,800);
+		jf.setBounds(50,50,1420,800);
 		jf.setResizable(false);
 		jf.setVisible(true);
 	}
+	
+	private void buildAdminScreen() {
+		adminPanel = new JPanel();
+		adminPanel.setLayout(new BorderLayout());
+		
+		// Header Panel with Heading
+		JPanel headerPanel = buildHeaderPanel();
+		adminPanel.add(BorderLayout.NORTH, headerPanel);
+		
+		JPanel centerPanel = new JPanel();
+		centerPanel.setLayout(new BorderLayout());
+		
+		JPanel centerPanelNorth = new JPanel();
+		centerPanelNorth.setPreferredSize(new Dimension(1410, 50));
+		centerPanelNorth.setMinimumSize(new Dimension(1410, 50));
+		centerPanelNorth.setMaximumSize(new Dimension(1410, 50));
+		centerPanelNorth.setLayout(new GridLayout(1,5));
+		JLabel welcomeGreeting = new JLabel("   Welcome "+loggedInUser.getFirstName()+"!");
+		setFormFont(welcomeGreeting,false);
+		centerPanelNorth.add(welcomeGreeting);
+		addSpacerLabel(centerPanelNorth, 3);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(logoutBtn);
+		centerPanelNorth.add(buttonPanel);
+		centerPanel.add(BorderLayout.NORTH, centerPanelNorth);
+
+		//List of all users
+		JPanel centerPanelMiddle = new JPanel();
+		centerPanelMiddle.setLayout(new GridLayout(1,1));
+		centerPanelMiddle.setPreferredSize(new Dimension(1410, 600));
+		centerPanelMiddle.setMinimumSize(new Dimension(1410, 600));
+		centerPanelMiddle.setMaximumSize(new Dimension(1410, 600));
+		String[] columnNames = {"Username", "First Name", "Last Name", "Card Number", "Books Borrowed"};
+		
+		
+		allUsersList = new JTable(buildAllUsersArray(), columnNames);
+		allUsersList.setPreferredScrollableViewportSize(new Dimension(1410, 600));
+		allUsersList.setFillsViewportHeight(true);
+		JScrollPane scrollPane = new JScrollPane(allUsersList, v1, h1);
+		//allUsersList.addMouseListener(this);
+		 
+		centerPanelMiddle.add(scrollPane);
+		centerPanel.add(BorderLayout.CENTER, centerPanelMiddle);
+		
+		adminPanel.add(BorderLayout.CENTER, centerPanel);
+		adminPanel.add(BorderLayout.SOUTH, buildFooterPanel());
+	}
+	
+	private String[][] buildAllUsersArray() {
+		HashMap<String, User> allUsers = LibraryData.getUsers();
+		int bookNum =  allUsers.size();
+		String[][] allUsersDetails = new String[bookNum][5];
+		
+		User user = null;
+		java.util.Set<String> keys = allUsers.keySet();
+		java.util.Iterator keyIterator = keys.iterator();
+
+		int i=0;
+		while(keyIterator.hasNext()) {
+			String key = (String)keyIterator.next();
+			user = allUsers.get(key);
+
+			allUsersDetails[i][0] = user.getUserName();
+			allUsersDetails[i][1] = user.getFirstName();
+			allUsersDetails[i][2] = user.getLastName();
+			allUsersDetails[i][3] = user.getCardNumber();
+			allUsersDetails[i][4] = buildBorrowedBooksArray(user.getUserName()).length+"";
+			i++;
+		}
+		
+		return allUsersDetails;
+	}
+
 	
 	private void buildSearchBooksScreen() {
 		searchBooksPanel = new JPanel();
@@ -104,9 +191,9 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 
 		//Search Books page header
 		JPanel centerPanelNorth = new JPanel();
-		centerPanelNorth.setPreferredSize(new Dimension(1190, 50));
-		centerPanelNorth.setMinimumSize(new Dimension(1190, 50));
-		centerPanelNorth.setMaximumSize(new Dimension(1190, 50));
+		centerPanelNorth.setPreferredSize(new Dimension(1410, 50));
+		centerPanelNorth.setMinimumSize(new Dimension(1410, 50));
+		centerPanelNorth.setMaximumSize(new Dimension(1410, 50));
 		centerPanelNorth.setLayout(new GridLayout(1,3));
 		JLabel welcomeGreeting = new JLabel("   Welcome "+loggedInUser.getFirstName()+"!");
 		setFormFont(welcomeGreeting,false);
@@ -115,6 +202,9 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		setFormFont(cartCntLabel,false);
 		cartBooksCountPanel.add(cartCntLabel);
 		centerPanelNorth.add(cartBooksCountPanel);
+		homeBtn = new JButton("HOME");
+		homeBtn.addActionListener(this);
+		setFormFont(homeBtn,false);
 		addToCartBtn = new JButton("ADD TO CART");
 		addToCartBtn.addActionListener(this);
 		setFormFont(addToCartBtn,false);
@@ -122,6 +212,7 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		checkoutBtn.addActionListener(this);
 		setFormFont(checkoutBtn,false);
 		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(homeBtn);
 		buttonPanel.add(addToCartBtn);
 		buttonPanel.add(checkoutBtn);
 		buttonPanel.add(logoutBtn);
@@ -131,12 +222,12 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		//List of all books
 		JPanel centerPanelMiddle = new JPanel();
 		centerPanelMiddle.setLayout(new GridLayout(1,1));
-		centerPanelMiddle.setPreferredSize(new Dimension(1190, 600));
-		centerPanelMiddle.setMinimumSize(new Dimension(1190, 600));
-		centerPanelMiddle.setMaximumSize(new Dimension(1190, 600));
-		String[] columnNames = {"Book ID", "Title", "Subject", "Publisher", "Author", "ISBN"};
+		centerPanelMiddle.setPreferredSize(new Dimension(1410, 600));
+		centerPanelMiddle.setMinimumSize(new Dimension(1410, 600));
+		centerPanelMiddle.setMaximumSize(new Dimension(1410, 600));
+		String[] columnNames = {"Book ID", "Title", "Subject", "Publisher", "Author", "ISBN", "Copies"};
 		allBooksList = new JTable(buildAllBooksArray(), columnNames);
-		allBooksList.setPreferredScrollableViewportSize(new Dimension(1190, 600));
+		allBooksList.setPreferredScrollableViewportSize(new Dimension(1410, 600));
 		allBooksList.setFillsViewportHeight(true);
 		JScrollPane scrollPane = new JScrollPane(allBooksList, v1, h1);
 		allBooksList.addMouseListener(this);
@@ -152,7 +243,7 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	private String[][] buildAllBooksArray() {
 		HashMap<String, Book> allBooks = LibraryData.getBooks();
 		int bookNum =  allBooks.size();
-		String[][] allBooksDetails = new String[bookNum][6];
+		String[][] allBooksDetails = new String[bookNum][7];
 		
 		Book book = null;
 		java.util.Set<String> keys = allBooks.keySet();
@@ -169,6 +260,7 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 			allBooksDetails[i][3] = book.getPublisher();
 			allBooksDetails[i][4] = book.getAuthor();
 			allBooksDetails[i][5] = book.getIsbnNumber();
+			allBooksDetails[i][6] = ""+book.getCopies();
 			i++;
 		}
 		
@@ -187,16 +279,52 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BorderLayout());
 
+		//Home page currently borrowed books section
+		JPanel centerPanelMiddle = new JPanel();
+		centerPanelMiddle.setPreferredSize(new Dimension(1410, 300));
+		centerPanelMiddle.setMinimumSize(new Dimension(1410, 300));
+		centerPanelMiddle.setMaximumSize(new Dimension(1410, 300));
+		centerPanelMiddle.setLayout(new BorderLayout());
+		
+		JLabel borrowedBooksHeading=null;
+		String[] columnNames = {"Book ID", "Title", "Subject", "Publisher", "Author", "ISBN"};
+		borrowedBooksList = new JTable(buildBorrowedBooksArray(loggedInUser.getUserName()), columnNames);
+		borrowedBooksList.setPreferredScrollableViewportSize(new Dimension(1410, 600));
+		borrowedBooksList.setFillsViewportHeight(true);
+		borrowedBooksList.addMouseListener(this);
+		JScrollPane scrollPane = new JScrollPane(borrowedBooksList, v1, h1);
+		setFormFont(borrowedBooksList,false);
+		JPanel borrowedBooksHeadingPanel = new JPanel();
+		borrowedBooksHeadingPanel.setLayout(new GridLayout(1,1));
+		if(borrowedBooksList.getRowCount()==0) {
+			borrowedBooksHeading = new JLabel("   You have no borrowed books.\n Click SEARCH BOOKS to find books to borrow.");
+		}
+		else {
+			borrowedBooksHeading = new JLabel("   You have borrowed the following books:");
+		}
+		setFormFont(borrowedBooksHeading,false);
+		borrowedBooksHeadingPanel.add(borrowedBooksHeading);
+		
+		centerPanelMiddle.add(BorderLayout.NORTH, borrowedBooksHeadingPanel);
+		centerPanelMiddle.add(BorderLayout.CENTER, scrollPane);
+		centerPanel.add(BorderLayout.CENTER, centerPanelMiddle);
+		
+		homePanel.add(BorderLayout.CENTER, centerPanel);
+		
+
 		//Home page header
 		JPanel centerPanelNorth = new JPanel();
-		centerPanelNorth.setPreferredSize(new Dimension(1190, 50));
-		centerPanelNorth.setMinimumSize(new Dimension(1190, 50));
-		centerPanelNorth.setMaximumSize(new Dimension(1190, 50));
-		centerPanelNorth.setLayout(new GridLayout(1,4));
-		JLabel welcomeGreeting = new JLabel("   Welcome "+loggedInUser.getFirstName()+"!");
+		centerPanelNorth.setPreferredSize(new Dimension(1410, 50));
+		centerPanelNorth.setMinimumSize(new Dimension(1410, 50));
+		centerPanelNorth.setMaximumSize(new Dimension(1410, 50));
+		centerPanelNorth.setLayout(new GridLayout(1,3));
+		JLabel welcomeGreeting = new JLabel("   Welcome "+loggedInUser.getFirstName()+"! Card #"+loggedInUser.getCardNumber());
 		setFormFont(welcomeGreeting,false);
 		centerPanelNorth.add(welcomeGreeting);
-		addSpacerLabel(centerPanelNorth,2);
+		addSpacerLabel(centerPanelNorth,1);
+		returnBookBtn = new JButton("RETURN BOOK");
+		returnBookBtn.addActionListener(this);
+		setFormFont(returnBookBtn,false);
 		searchBooksBtn = new JButton("SEARCH BOOKS");
 		searchBooksBtn.addActionListener(this);
 		setFormFont(searchBooksBtn,false);
@@ -205,47 +333,16 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		setFormFont(logoutBtn,false);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(searchBooksBtn);
+		buttonPanel.add(returnBookBtn);
 		buttonPanel.add(logoutBtn);
 		centerPanelNorth.add(buttonPanel);
+		
 		centerPanel.add(BorderLayout.NORTH, centerPanelNorth);
-
-		//Home page currently borrowed books section
-		JPanel centerPanelMiddle = new JPanel();
-		centerPanelMiddle.setPreferredSize(new Dimension(1190, 300));
-		centerPanelMiddle.setMinimumSize(new Dimension(1190, 300));
-		centerPanelMiddle.setMaximumSize(new Dimension(1190, 300));
-		centerPanelMiddle.setLayout(new BorderLayout());
-		
-		JLabel borrowedBooksHeading=null;
-		String[] columnNames = {"Book ID", "Title", "Subject", "Publisher", "Author", "ISBN"};
-		borrowedBooksList = new JTable(buildBorrowedBooksArrary(), columnNames);
-		JScrollPane scrollPane = new JScrollPane(borrowedBooksList, v1, h1);
-		setFormFont(borrowedBooksList,false);
-		JPanel borrowedBooksHeadingPanel = new JPanel();
-		borrowedBooksHeadingPanel.setLayout(new GridLayout(1,1));
-
-		if(borrowedBooksList.size().height==0) {
-			borrowedBooksHeading = new JLabel("   You have no borrowed books.\n Click SEARCH to find books to borrow.");
-		}
-		else {
-			borrowedBooksHeading = new JLabel("   You have borrowed the following books:");
-		}
-		setFormFont(borrowedBooksHeading,false);
-		//addSpacerLabel(borrowedBooksHeadingPanel,1);
-		borrowedBooksHeadingPanel.add(borrowedBooksHeading);
-		//addSpacerLabel(borrowedBooksHeadingPanel,1);
-		
-		centerPanelMiddle.add(BorderLayout.NORTH, borrowedBooksHeadingPanel);
-		centerPanelMiddle.add(BorderLayout.CENTER, scrollPane);
-		centerPanel.add(BorderLayout.CENTER, centerPanelMiddle);
-		
-		homePanel.add(BorderLayout.CENTER, centerPanel);
 		homePanel.add(BorderLayout.SOUTH, buildFooterPanel());
 	}
 	
-	private String[][] buildBorrowedBooksArrary() {
-		ArrayList currentlyBorrowedBooks = Transaction.getCurrentBookings().get(loggedInUser.getUserName());
-
+	private String[][] buildBorrowedBooksArray(String userNameParam) {
+		ArrayList currentlyBorrowedBooks = Transaction.getCurrentBookings().get(userNameParam);
 		if(currentlyBorrowedBooks==null) {
 			currentlyBorrowedBooks = new ArrayList();
 		}
@@ -278,9 +375,9 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		centerPanel.setLayout(new BorderLayout());
 
 		JPanel centerPanelNorth = new JPanel();
-		centerPanelNorth.setPreferredSize(new Dimension(1190, 300));
-		centerPanelNorth.setMinimumSize(new Dimension(1190, 300));
-		centerPanelNorth.setMaximumSize(new Dimension(1190, 300));
+		centerPanelNorth.setPreferredSize(new Dimension(1410, 300));
+		centerPanelNorth.setMinimumSize(new Dimension(1410, 300));
+		centerPanelNorth.setMaximumSize(new Dimension(1410, 300));
 		centerPanelNorth.setLayout(new GridLayout(9, 6));
 		
 		JLabel accountRegistrationText = new JLabel("Register Account");
@@ -361,8 +458,8 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		registerPanel.add(BorderLayout.CENTER, centerPanel);
 
 		JPanel spl = new JPanel();
-		spl.setPreferredSize(new Dimension(1190, 100));
-		spl.setMinimumSize(new Dimension(1190, 100));
+		spl.setPreferredSize(new Dimension(1410, 100));
+		spl.setMinimumSize(new Dimension(1410, 100));
 		spl.setBackground(new Color(150, 150, 150));
 		registerPanel.add(BorderLayout.SOUTH, buildFooterPanel());
 
@@ -383,9 +480,9 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		centerPanel.setLayout(new BorderLayout());
 
 		JPanel centerPanelNorth = new JPanel();
-		centerPanelNorth.setPreferredSize(new Dimension(1190, 300));
-		centerPanelNorth.setMinimumSize(new Dimension(1190, 300));
-		centerPanelNorth.setMaximumSize(new Dimension(1190, 300));
+		centerPanelNorth.setPreferredSize(new Dimension(1410, 300));
+		centerPanelNorth.setMinimumSize(new Dimension(1410, 300));
+		centerPanelNorth.setMaximumSize(new Dimension(1410, 300));
 		centerPanelNorth.setLayout(new GridLayout(9, 8));
 		
 		JLabel loginText = new JLabel("Login");
@@ -462,8 +559,8 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 	//Footer panel
 	private JPanel buildFooterPanel() {
 		JPanel footer = new JPanel();
-		footer.setPreferredSize(new Dimension(1190, 50));
-		footer.setMinimumSize(new Dimension(1190, 50));
+		footer.setPreferredSize(new Dimension(1410, 50));
+		footer.setMinimumSize(new Dimension(1410, 50));
 		footer.setBackground(new Color(125, 125, 125));
 		return footer;
 	}
@@ -480,16 +577,15 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
 		header.add(headerLabel);
 		addSpacerLabel(header,4);
 		
-		header.setPreferredSize(new Dimension(1190, 65));
-		header.setMinimumSize(new Dimension(1190, 65));
+		header.setPreferredSize(new Dimension(1410, 65));
+		header.setMinimumSize(new Dimension(1410, 65));
 		header.setBackground(new Color(0, 0, 255));
 		
 		return header;
 	}
 	
 	private void addSpacerLabel(JComponent comp, int count) {
-		for(int i=0; i<count; i++)
-		{
+		for(int i=0; i<count; i++) {
 			comp.add(new JLabel("               "));
 		}
 	}
@@ -516,7 +612,8 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		JOptionPane.showMessageDialog(new JFrame(),"Username is required","Error",JOptionPane.ERROR_MESSAGE);
         	}
         	if(!error) {
-	        	if(inputPassword==null || inputPassword.trim().equals("")) {
+	        	if(inputPassword==null || inputPassword.trim().equals(""))
+	        	{
 	        		error = true;
 	        		JOptionPane.showMessageDialog(new JFrame(),"Password is required","Error",JOptionPane.ERROR_MESSAGE);
 	        	}
@@ -533,14 +630,23 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         			//show Home screen logic goes here
         			loggedInUser = LibraryData.getUsers().get(inputUserName);
         			System.out.println("User "+loggedInUser.getFirstName()+" logged in.");
-                    buildHomeScreen();
-                    mainPanel.add(homePanel, HOME_PANEL);
-                    cl.show(mainPanel, HOME_PANEL);
+        			
+        			if(!loggedInUser.isAdmin()) {
+	                    buildHomeScreen();
+	                    mainPanel.add(homePanel, HOME_PANEL);
+	                    cl.show(mainPanel, HOME_PANEL);
+        			}
+        			else {
+	                    buildHomeScreen();
+	                    buildAdminScreen();
+	                    mainPanel.add(homePanel, HOME_PANEL);
+	                    mainPanel.add(adminPanel, ADMIN_PANEL);
+	                    cl.show(mainPanel, ADMIN_PANEL);
+        			}    
         		}
         	}
         	
-        }
-
+        }	
         if(ae.getSource()==loginRegisterBtn) {
         	System.out.println("Opening Account Registration");
         	cl.show(mainPanel, REGISTER_PANEL);
@@ -564,25 +670,29 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
             	}
         	}
         	if(!error) {
-            	if(inputLN==null || inputLN.trim().equals("")) {
+            	if(inputLN==null || inputLN.trim().equals(""))
+            	{
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"Last name is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-            	if(inputPassword==null || inputPassword.trim().equals("")) {
+            	if(inputPassword==null || inputPassword.trim().equals(""))
+            	{
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"Password is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-            	if(inputReenter==null || inputReenter.trim().equals("")) {
+            	if(inputReenter==null || inputReenter.trim().equals(""))
+            	{
             		error = true;
             		JOptionPane.showMessageDialog(new JFrame(),"Password re-entry is required","Error",JOptionPane.ERROR_MESSAGE);
             	}
         	}
         	if(!error) {
-        		if(!inputPassword.equals(inputReenter)) {
+        		if(!inputPassword.equals(inputReenter))
+        		{
             		error = true;
         			JOptionPane.showMessageDialog(new JFrame(),"Passwords do not match","Error",JOptionPane.ERROR_MESSAGE);
         		}
@@ -590,25 +700,22 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         	if(!error) {
         		Transaction.registerNewUser(inputUsername, inputFN, inputLN, inputPassword);
         		System.out.println("Total users: "+LibraryData.getUsers().size());
-        		String successMsg = "User "+inputFN+" "+inputLN+" created";
+                String successMsg = "User "+inputFN+" "+inputLN+" created. " + "Your library card number is " + Transaction.currentUsers.get(inputUsername).getCardNumber();
         		JOptionPane.showMessageDialog(new JFrame(),successMsg,"Success",JOptionPane.INFORMATION_MESSAGE);
         		cl.show(mainPanel, LOGIN_PANEL);
         	}
         }
-
         if(ae.getSource()==logoutBtn) {
         	System.out.println("User "+loggedInUser.getFirstName()+" logged out.");
         	loggedInUser = null;
         	homePanel = null;
         	cl.show(mainPanel, LOGIN_PANEL);
         }
-
         if(ae.getSource()==searchBooksBtn) {
             buildSearchBooksScreen();
             mainPanel.add(searchBooksPanel, SEARCH_BOOKS_PANEL);
             cl.show(mainPanel, SEARCH_BOOKS_PANEL);
         }
-
         if(ae.getSource()==addToCartBtn) {
         	if(chosenBookId==null || chosenBookId.equals("")) {
         		JOptionPane.showMessageDialog(new JFrame(),"No book selected","Error",JOptionPane.ERROR_MESSAGE);
@@ -626,7 +733,6 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		jf.setVisible(true);
         	}
         }
-
         if(ae.getSource()==checkoutBtn) {
         	if(numberOfBooksInCart==0) {
         		JOptionPane.showMessageDialog(new JFrame(),"Cart is empty. Add at least 1 book to cart.","Error",JOptionPane.ERROR_MESSAGE);
@@ -639,14 +745,41 @@ public class LibraryFrontEnd extends MouseHandler implements ActionListener{
         		cartBooksCountPanel.removeAll();
         	}
         }
+        if(ae.getSource()==returnBookBtn) {
+        	if(chosenBookId==null || chosenBookId.equals("")) {
+        		JOptionPane.showMessageDialog(new JFrame(),"No book selected","Error",JOptionPane.ERROR_MESSAGE);
+        	}
+        	else {
+	        	Transaction.returnBook(loggedInUser.getUserName(), chosenBookId);
+	        	buildHomeScreen();
+	        	mainPanel.add(homePanel, HOME_PANEL);
+	        	cl.show(mainPanel, HOME_PANEL);
+        	}
+        }
+        if(ae.getSource()==homeBtn) {
+        	buildHomeScreen();
+        	mainPanel.add(homePanel, HOME_PANEL);
+        	cl.show(mainPanel, HOME_PANEL);
+        }
         
 	}
 
+	@Override
 	public void mouseClicked(MouseEvent evt) {
-		int row = allBooksList.rowAtPoint(evt.getPoint());
+		
+		int row = 0;
 		int col = 0;
-		chosenBookId = (String)allBooksList.getValueAt(row, col);
-		System.out.println("Selected Book ID: "+chosenBookId);
+		
+		if(evt.getSource()==allBooksList) {
+			row = allBooksList.rowAtPoint(evt.getPoint());
+			chosenBookId = (String)allBooksList.getValueAt(row, col);
+			System.out.println("Selected Book ID: "+chosenBookId);
+		}
+		if(evt.getSource()==borrowedBooksList) {
+			row = borrowedBooksList.rowAtPoint(evt.getPoint());
+			chosenBookId = (String)borrowedBooksList.getValueAt(row, col);
+			System.out.println("Selected Book ID: "+chosenBookId);
+		}
 	}
 
 }

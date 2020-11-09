@@ -79,7 +79,7 @@ public class User implements java.io.Serializable{
 
 
 	public User() {
-		// TODO Auto-generated constructor stub
+
 	}
 
 }

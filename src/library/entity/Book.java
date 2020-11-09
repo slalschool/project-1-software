@@ -18,7 +18,7 @@ public class Book implements java.io.Serializable{
 		this.setIsbnNumber(isbnNumber);
 		this.setSubject(subject);
 		this.setPublisher(publisher);
-		this.setCopies(2);
+		this.setCopies(10);
 	}
 	
 	public String getBookId() {

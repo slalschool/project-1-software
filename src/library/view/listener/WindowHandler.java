@@ -13,7 +13,6 @@ public class WindowHandler implements WindowListener{
     }
 
     public void windowClosing(WindowEvent e) {
-
         System.exit(0);
     }
 
