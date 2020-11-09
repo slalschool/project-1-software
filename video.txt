@@ -1,0 +1,24 @@
+LIBRARY SOFTWARE PROJECT by Siddharth Lal and Jason Li
+
+Idea:
+Online library
+
+Goals:
+1) Be able to borrow and return books from an online selection
+2) Be easy and simple to use
+3) Allow new users to join
+4) Give an admin overview of users and their actions
+
+Planning Stages:
+1) Log in and register page
+2) Data types within app
+3) Book transaction logic
+4) Implementing this with a GUI
+
+Challenges:
+Not using a database made it so any data created in the session will not remain after the session
+Implementing a GUI
+Getting hang of how to create layout of components and arrange it within the app
+    ex:
+    top row was a panel using grid layout using one row and three columns
+    buttons might not stay in a row and managing space, so i changed jframe length

@@ -78,7 +78,7 @@ public class Transaction {
 		
 		System.out.println("Book Title: "+book.getTitle());
 		System.out.println("Balance Copies Available: "+book.getCopies());
-	}
+}
 	
 	public static void viewAvailableBooks() {
 		HashMap<String, Book> books = LibraryData.getBooks();
